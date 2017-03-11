@@ -33,69 +33,23 @@ ECHO_B = 27
 GPIO.setwarnings(False)
 
 # thread handling
-class Thread_1(threading.Thread):
+class Thread(threading.Thread):
 	
 	# Create variables to be passed
-	def __init__(self, threadID, name, counter, dist):
+	def __init__(self, threadID, name, counter, dist, trig, echo):
 		# Decode variable into local variables
 		threading.Thread.__init__(self)
 		self.threadID = threadID
 		self.name = name
 		self.counter = counter
 		self.dist = 0
+		self.trig = trig
+		self.echo = echo
 	def run(self):
 		# task
-		GPIO.setup(TRIG_R, GPIO.OUT)
-		GPIO.setup(ECHO_R, GPIO.IN)
-		self.dist = distance(TRIG_R,ECHO_R)
-
-class Thread_2(threading.Thread):
-        # Create variables to be passed
-        def __init__(self, threadID, name, counter, dist):
-                # Decode variable into local variables
-                threading.Thread.__init__(self)
-                self.threadID = threadID
-                self.name = name
-                self.counter = counter
-		self.dist = 0
-        def run(self):
-                # task
-                GPIO.setup(TRIG_L, GPIO.OUT)
-                GPIO.setup(ECHO_L, GPIO.IN)
-                self.dist = distance(TRIG_L,ECHO_L)
-
-class Thread_3(threading.Thread):
-
-        # Create variables to be passed
-        def __init__(self, threadID, name, counter, dist):
-                # Decode variable into local variables
-                threading.Thread.__init__(self)
-                self.threadID = threadID
-                self.name = name
-                self.counter = counter
-		self.dist = 0
-        def run(self):
-                # task
-                GPIO.setup(TRIG_F, GPIO.OUT)
-                GPIO.setup(ECHO_F, GPIO.IN)
-                self.dist = distance(TRIG_F,ECHO_F)
-
-class Thread_4(threading.Thread):
-
-        # Create variables to be passed
-        def __init__(self, threadID, name, counter, dist):
-                # Decode variable into local variables
-                threading.Thread.__init__(self)
-                self.threadID = threadID
-                self.name = name
-                self.counter = counter
-		self.dist = 0
-        def run(self):
-                # task
-                GPIO.setup(TRIG_B, GPIO.OUT)
-                GPIO.setup(ECHO_B, GPIO.IN)
-                self.dist = distance(TRIG_B,ECHO_B)
-#		print self.dist
+		GPIO.setup(self.trig, GPIO.OUT)
+		GPIO.setup(self.echo, GPIO.IN)
+		self.dist = distance(self.trig,self.echo)
 
 # functions
 # to check if distance d is legal
@@ -135,17 +89,15 @@ if __name__ == '__main__':
 	try:
         	while True:
 			# Create new threads
-			thread1 = Thread_1(1, "Thread-1", 1, 0)
-			thread2 = Thread_2(2, "Thread-2", 1, 0)
-			thread3 = Thread_3(3, "Thread-3", 1, 0)
-			thread4 = Thread_4(4, "Thread-4", 1, 0)
-			
+			thread1 = Thread(1, "Thread-1", 1, 0, TRIG_R, ECHO_R)
+			thread2 = Thread(2, "Thread-2", 1, 0, TRIG_L, ECHO_L)
+			thread3 = Thread(3, "Thread-3", 1, 0, TRIG_F, ECHO_F)
+			thread4 = Thread(4, "Thread-4", 1, 0, TRIG_B, ECHO_B)			
 			# Start new Threads
 			thread1.start()
 			thread2.start()
 			thread3.start()
 			thread4.start()
-	
 			print "-----------Exiting Main Thread---------"
 
 			print ("Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (thread1.dist,thread2.dist,thread3.dist,thread4.dist))
