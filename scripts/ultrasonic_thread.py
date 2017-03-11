@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import threading
+from CustomFilter import CustomFilter
 
 exitFlag = 0 # Fail safe exit - nothing not used
 
@@ -34,22 +35,25 @@ GPIO.setwarnings(False)
 
 # thread handling
 class Thread(threading.Thread):
-	
 	# Create variables to be passed
-	def __init__(self, threadID, name, counter, dist, trig, echo):
+	def __init__(self, threadID, name, counter, trig, echo):
 		# Decode variable into local variables
 		threading.Thread.__init__(self)
 		self.threadID = threadID
 		self.name = name
 		self.counter = counter
-		self.dist = 0
 		self.trig = trig
 		self.echo = echo
+		self.dist = 0
+		self.filter = CustomFilter()
+		self.f_dist = 0
 	def run(self):
 		# task
 		GPIO.setup(self.trig, GPIO.OUT)
 		GPIO.setup(self.echo, GPIO.IN)
 		self.dist = distance(self.trig,self.echo)
+		self.f_dist = self.filter.observe(self.dist)
+		
 
 # functions
 # to check if distance d is legal
@@ -89,10 +93,10 @@ if __name__ == '__main__':
 	try:
         	while True:
 			# Create new threads
-			thread1 = Thread(1, "Thread-1", 1, 0, TRIG_R, ECHO_R)
-			thread2 = Thread(2, "Thread-2", 1, 0, TRIG_L, ECHO_L)
-			thread3 = Thread(3, "Thread-3", 1, 0, TRIG_F, ECHO_F)
-			thread4 = Thread(4, "Thread-4", 1, 0, TRIG_B, ECHO_B)			
+			thread1 = Thread(1, "Thread-1", 1, TRIG_R, ECHO_R)
+			thread2 = Thread(2, "Thread-2", 1, TRIG_L, ECHO_L)
+			thread3 = Thread(3, "Thread-3", 1, TRIG_F, ECHO_F)
+			thread4 = Thread(4, "Thread-4", 1, TRIG_B, ECHO_B)			
 			# Start new Threads
 			thread1.start()
 			thread2.start()
@@ -101,6 +105,7 @@ if __name__ == '__main__':
 			print "-----------Exiting Main Thread---------"
 
 			print ("Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (thread1.dist,thread2.dist,thread3.dist,thread4.dist))
+			print ("[Filtered] Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (thread1.f_dist,thread2.f_dist,thread3.f_dist,thread4.f_dist))
 			time.sleep(1)
  
 	# Reset by pressing CTRL + C
