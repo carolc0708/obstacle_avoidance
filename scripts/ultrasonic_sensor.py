@@ -24,7 +24,7 @@ ECHO_B = 27
 
 
 # threshold assignment
-WARNING_DISTANCE = None 
+WARNING_DISTANCE = 400 # 4m 
 SAMPLING_FREQUENCY = None
 
 # settings
@@ -39,11 +39,6 @@ GPIO.setup(TRIG_B, GPIO.OUT)
 GPIO.setup(ECHO_B, GPIO.IN)
 
 # functions
-
-# to check if distance d is legal
-def isLegalDistance(d):
-
-	return d < 400 # 4 m
 
 def distance(TRIG,ECHO):
 	# set Trigger to HIGH
@@ -79,22 +74,41 @@ if __name__ == '__main__':
 		custom_filter_l = CustomFilter()
 		custom_filter_f = CustomFilter()
 		custom_filter_b = CustomFilter()
-        	while True:
-			dist_r = distance(TRIG_R,ECHO_R)
-			dist_l = distance(TRIG_L,ECHO_L)
-			dist_f = distance(TRIG_F,ECHO_F)
-			dist_b = distance(TRIG_B,ECHO_B)
-			print ("Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (dist_r,dist_l,dist_f,dist_b))
-			fdist_r = custom_filter_r.observe(dist_r)
-			fdist_l = custom_filter_l.observe(dist_l)
-			fdist_f = custom_filter_f.observe(dist_f)
-			fdist_b = custom_filter_b.observe(dist_b)
-			print ("[Filtered] Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (fdist_r,fdist_l,fdist_f,fdist_b))
-			print('-----------------------------')
-			time.sleep(1)
+			
+		dist_r = distance(TRIG_R,ECHO_R)
+		dist_l = distance(TRIG_L,ECHO_L)
+		dist_f = distance(TRIG_F,ECHO_F)
+		dist_b = distance(TRIG_B,ECHO_B)
+		#	print ("Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (dist_r,dist_l,dist_f,dist_b))
+		fdist_r = custom_filter_r.observe(dist_r)
+		fdist_l = custom_filter_l.observe(dist_l)
+		fdist_f = custom_filter_f.observe(dist_f)
+		fdist_b = custom_filter_b.observe(dist_b)
+		#	print ("[Filtered] Right = %.1f cm, Left = %.1f cm, Front = %.1f cm, Back = %.1f cm" % (fdist_r,fdist_l,fdist_f,fdist_b))
+		#	print('---------------------------')
+		alert_str = ""
+		if fdist_r < WARNING_DISTANCE :
+			alert_str += '1'
+		else:
+			alert_str += '0'
+		if fdist_l < WARNING_DISTANCE:
+			alert_str += '1'
+		else:
+			alert_str += '0'
+		if fdist_f < WARNING_DISTANCE:
+			alert_str += '1'
+		else:
+			alert_str += '0'
+		if fdist_b < WARNING_DISTANCE:
+			alert_str += '1'
+		else:
+			alert_str += '0'
+		print alert_str
+				  
+	#	time.sleep(1)
  
 	# Reset by pressing CTRL + C
 	except KeyboardInterrupt:
-		print("Measurement stopped by User")
+	#	print("Measurement stopped by User")
 		GPIO.cleanup()	
 	
